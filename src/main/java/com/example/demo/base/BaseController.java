@@ -1,24 +1,26 @@
-package com.example.demo.controllers;
+package com.example.demo.base;
 
-import com.example.demo.DTOs.EmployeeVacationRequest;
-import com.example.demo.entities.Employee;
-import com.example.demo.services.EmployeeService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("employees")
-public class EmployeeController {
+@AllArgsConstructor
+
+public class BaseController<T extends BaseEntity,Service extends BaseService<T,?>> {
 
     @Autowired
-    private EmployeeService employeeService;
+    //@Qualifier("EmployeeService")
+    protected Service service;
+
 
     @GetMapping
-    public ResponseEntity<?> getAllEmployees(){
+    public ResponseEntity<?> getAllEntitys(){
         try{
-            return ResponseEntity.ok(employeeService.getAllEmployees());
+            return ResponseEntity.ok(service.getAllEntitys());
         }
         catch (Exception ex){
             ex.printStackTrace();
@@ -26,10 +28,16 @@ public class EmployeeController {
         }
     }
 
+
+
+
+
+
+
     @GetMapping("{id}")
-    public ResponseEntity<?> getEmployeeById(@PathVariable Long id){
+    public ResponseEntity<?> getEntityById(@PathVariable Long id){
         try{
-            return ResponseEntity.ok(employeeService.getEmployeeById(id));
+            return ResponseEntity.ok(service.getObjectById(id));
         }
         catch (Exception ex){
             ex.printStackTrace();
@@ -38,9 +46,10 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createEmployee(@RequestBody Employee employee){
+    public ResponseEntity<?> createEntity(@RequestBody @Valid T object){
         try{
-            return new ResponseEntity<>(employeeService.createEmployee(employee), HttpStatus.CREATED);
+            service.createObject(object);
+            return ResponseEntity.ok().build();
         }
         catch (Exception ex){
             ex.printStackTrace();
@@ -49,9 +58,9 @@ public class EmployeeController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody Employee employee){
+    public ResponseEntity<?> updateEntity(@PathVariable Long id, @RequestBody T object){
         try{
-            employeeService.updateEmployee(id, employee);
+            service.updateEntity(id, object);
             return ResponseEntity.ok().build();
         }
         catch (Exception ex){
@@ -61,9 +70,9 @@ public class EmployeeController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable Long id){
+    public ResponseEntity<?> deleteEntity(@PathVariable Long id){
         try{
-            employeeService.deleteEmployee(id);
+            service.deleteEntity(id);
             return ResponseEntity.ok().build();
         }
         catch (Exception ex){
@@ -71,5 +80,8 @@ public class EmployeeController {
             return ResponseEntity.internalServerError().body(ex.getMessage());
         }
     }
+
+
+
 
 }
